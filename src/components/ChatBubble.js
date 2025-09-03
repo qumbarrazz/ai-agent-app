@@ -1,6 +1,22 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
-import ReactMarkdown from 'react-markdown';
+
+function formatAgentText(text) {
+  // Simple formatting: headings, lists
+  const lines = text.split('\n');
+  return lines.map((line, idx) => {
+    if (/^# /.test(line)) {
+      return <Typography key={idx} variant="h6" sx={{ fontWeight: 700, mb: 1 }}>{line.replace(/^# /, '')}</Typography>;
+    }
+    if (/^## /.test(line)) {
+      return <Typography key={idx} variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>{line.replace(/^## /, '')}</Typography>;
+    }
+    if (/^- /.test(line)) {
+      return <Typography key={idx} component="li" variant="body2" sx={{ mb: 0.5 }}>{line.replace(/^- /, '')}</Typography>;
+    }
+    return <Typography key={idx} variant="body1" sx={{ mb: 1 }}>{line}</Typography>;
+  });
+}
 
 function ChatBubble({ sender, text, timestamp }) {
   const isUser = sender === 'user';
@@ -24,19 +40,7 @@ function ChatBubble({ sender, text, timestamp }) {
             {text}
           </Typography>
         ) : (
-          <ReactMarkdown
-            children={text}
-            components={{
-              h1: ({ node, ...props }) => <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }} {...props} />,
-              h2: ({ node, ...props }) => <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }} {...props} />,
-              p: ({ node, ...props }) => <Typography variant="body1" sx={{ mb: 1 }} {...props} />,
-              ul: ({ node, ...props }) => <Box component="ul" sx={{ pl: 3, mb: 1 }} {...props} />,
-              li: ({ node, ...props }) => <Typography component="li" variant="body2" sx={{ mb: 0.5 }} {...props} />,
-              strong: ({ node, ...props }) => <Box component="span" sx={{ fontWeight: 700 }} {...props} />,
-              em: ({ node, ...props }) => <Box component="span" sx={{ fontStyle: 'italic' }} {...props} />,
-              code: ({ node, ...props }) => <Box component="code" sx={{ bgcolor: '#eee', px: 0.5, borderRadius: 1, fontSize: '0.95em' }} {...props} />,
-            }}
-          />
+          <Box component="div">{formatAgentText(text)}</Box>
         )}
         <Typography variant="caption" sx={{ display: 'block', mt: 1, textAlign: 'right', opacity: 0.7 }}>
           {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
